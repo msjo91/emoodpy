@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     # 인증처리용 URL
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('survey/', include('survey.urls')),
 ]
 
 urlpatterns += static(

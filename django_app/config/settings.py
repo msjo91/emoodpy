@@ -124,6 +124,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'member.apps.MemberConfig',
+    'survey.apps.SurveyConfig',
 ]
 
 REST_FRAMEWORK = {
