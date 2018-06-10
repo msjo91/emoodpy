@@ -1,55 +1,77 @@
-from django.contrib.auth import get_user_model, logout
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import viewsets, permissions, status
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 
-from .serializers import UserSerializer, SignUpSerializer, SignInSerializer, TokenSerializer
-
-User = get_user_model()
+from .forms import SignInForm, SignUpForm, ChangeProfileForm
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+def signin_fbv(request):
+    if request.method == "POST":
+        form = SignInForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(username=username, password=password)
 
-    def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
-
-
-class SignUpViewSet(viewsets.ViewSet):
-    def create(self, request, *args, **kwargs):
-        serializer = SignUpSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if user is not None:
+            login(request, user)
+            return redirect('post:list')
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            form.add_error(None, '아이디나 비밀번호가 잘못되었습니다.')
+
+    else:
+        form = SignInForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'member/signin_p.html', context)
 
 
-class SignInViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.AllowAny,)
+def signup_fbv(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.create_user()
+            return redirect('post:list')
+    else:
+        form = SignUpForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'member/signup_p.html', context)
 
-    def create(self, request, *args, **kwargs):
-        serializer = SignInSerializer(data=request.data)
-        token_model = Token
 
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.validated_data['user']
-            token, _ = token_model.objects.get_or_create(user=user)
-            serializer_token = TokenSerializer(instance=Token)
-            return Response(serializer_token.data, status=status.HTTP_200_OK)
+@login_required
+def profile_fbv(request):
+    context = {
+
+    }
+    return render(request, 'member/profile.html', context)
 
 
-class SignOutViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.IsAuthenticated,)
+@login_required
+def change_profile_fbv(request):
+    if request.method == 'POST':
+        form = ChangeProfileForm(
+            instance=request.user,
+            data=request.POST,
+            files=request.FILES
+        )
+        if form.is_valid():
+            form.save()
+            return redirect('member:profile')
+    else:
+        form = ChangeProfileForm(
+            instance=request.user
+        )
+    context = {
+        'form': form,
+    }
+    return render(request, 'member/change_profile.html', context)
 
-    def create(self, request, *args, **kwargs):
-        try:
-            request.auth.delete()
-        except (AttributeError, ObjectDoesNotExist):
-            return Response({'detail': 'Token Does Not Exist.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        logout(request)
-        return Response({'detail': 'Sign-Out Success!'}, status=status.HTTP_200_OK)
+def signout_fbv(request):
+    logout(request)
+    return redirect('member:signin')

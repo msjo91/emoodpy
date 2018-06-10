@@ -17,25 +17,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import routers
 
-from member import views as member_view
-
-router = routers.DefaultRouter()
-router.register(r'user', member_view.UserViewSet, 'user')
-router.register(r'signup', member_view.SignUpViewSet, 'signup')
-router.register(r'signin', member_view.SignInViewSet, 'signin')
-router.register(r'signout', member_view.SignOutViewSet, 'signout')
+from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    # 인증처리용 URL
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('survey/', include('survey.urls')),
+    path('admin/', admin.site.urls),  # Django admin page Django 관리자 페이지
+    path('member/', include('member.urls')),  # Member page 유저 페이지
+    path('^$', views.index, name='index'),  # Main index page 첫 화면
 ]
 
-urlpatterns += static(
-    settings.MEDIA_URL,
-    document_root=settings.MEDIA_ROOT
-)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

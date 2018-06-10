@@ -1,0 +1,21 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+<div class="login-box">
+  <h1>안녕하세요</h1>
+    <form action="" method="post">{% csrf_token %}
+      <p>기관</p>
+      <select class="" name="institutions">
+        <option value="">고려대학교</option>
+      </select>
+      <p>연구팀</p>
+      <select class="" name="teams">
+        <option value="">시간생물학연구소</option>
+      </select>
+      <p>비밀번호</p>
+      <input type="password" name="password" placeholder="비밀번호를 입력해주세요">
+      <input type="submit" name="submit" value="로그인">
+      <a href="{% url 'member:signin_r' %}">일반 로그인</a>
+    </form>
+</div>
+{% endblock %}

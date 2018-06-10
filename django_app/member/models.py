@@ -1,34 +1,44 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 
+from research.models import Institution
+
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, username, nickname, sex, date_of_birth, password=None):
+    def create_user(self, username, nickname, sex, date_of_birth, institution, user_type='P', password=None):
         """
-        아이디, 이니셜, 성별, 생년월일을 이용해 이용자를 생성한다.
+        아이디, 이니셜, 성별, 생년월일, 유저타입을 이용해 이용자를 생성한다.
         """
-        if not username:
-            raise ValueError('전화번호는 필수로 입력하셔야 합니다.')
+        if user_type == 'P':  # 유저타입이 환자인 경우
+            user = self.model(
+                username=username,
+                nickname=nickname,
+                sex=sex,
+                date_of_birth=date_of_birth,
+                institution=institution,
+                user_type=user_type
+            )
+            user.set_password(password)
+            user.save(using=self._db)
+            return user
+        elif user_type == 'R':  # 유저타입이 연구자인 경우
+            user = self.model(
+                username=username,
+                nickname=nickname,
+                institution=institution,
+                user_type=user_type
+            )
+            user.set_password(password)
+            user.save(using=self._db)
+            return user
 
+    def create_superuser(self, username, nickname, user_type='D', password=None):
+        """
+        아이디, 닉네임, 비밀번호를 이용해 총괄운영자를 생성한다.
+        """
         user = self.model(
             username=username,
             nickname=nickname,
-            sex=sex,
-            date_of_birth=date_of_birth
-        )
-
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, nickname, sex, user_type, password=None):
-        """
-        아이디, 닉네임, 비밀번호를 이용해 운영자를 생성한다.
-        """
-        user = self.model(
-            username=username,
-            nickname=nickname,
-            sex=sex,
             user_type=user_type
         )
 
@@ -41,7 +51,7 @@ class MyUserManager(BaseUserManager):
 class MyUser(AbstractBaseUser):
     username = models.CharField(
         verbose_name='username',
-        max_length=30,
+        max_length=50,
         unique=True,
     )
 
@@ -54,8 +64,7 @@ class MyUser(AbstractBaseUser):
 
     CHOICES_SEX = (
         ('M', 'Male'),
-        ('F', 'Female'),
-        ('N', 'N/A')
+        ('F', 'Female')
     )
 
     sex = models.CharField(max_length=1, choices=CHOICES_SEX)
@@ -66,12 +75,7 @@ class MyUser(AbstractBaseUser):
         null=True
     )
 
-    institution = models.CharField(
-        verbose_name='institution',
-        max_length=30,
-        blank=True,
-        null=True
-    )
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, null=True, blank=True)
 
     fitbit = models.CharField(
         verbose_name='fitbit',
@@ -96,7 +100,7 @@ class MyUser(AbstractBaseUser):
     objects = MyUserManager()
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['nickname', 'sex', 'user_type', ]
+    REQUIRED_FIELDS = ['nickname', 'user_type', ]
 
     def get_short_name(self):
         return self.nickname
@@ -126,3 +130,9 @@ class MyUser(AbstractBaseUser):
         슈퍼유저 권한을 가지고 있습니까?
         """
         return self.is_admin
+
+
+# class Membership(models.Model):
+#     user = models.ForeignKey(MyUser, related_name='participants', on_delete=models.CASCADE)
+#     institution = models.ForeignKey(Institution, related_name='institution', on_delete=models.CASCADE)
+#     date_joined = models.DateField()

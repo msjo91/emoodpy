@@ -1,0 +1,26 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+<div class='signup-box'>
+  <form action="" method="POST">{% csrf_token %}
+    <p>핸드폰번호</p>
+    <input type="text" name="username" placeholder="핸드폰 번호를 입력해주세요">
+    <p>비밀번호</p>
+    <input type="password" name="password" placeholder="비밀번호를 입력해주세요">
+    <p>비밀번호 재확인</p>
+    <input type="password" name="password" placeholder="비밀번호를 재입력해주세요">
+    <p>이니셜</p>
+    <input type="text" name="nickname" placeholder="성+이름 순으로 이니셜을 입력해주세요">
+    <p>성별</p>
+    <input type="radio" name="sex" value="M">남
+    <input type="radio" name="sex" value="F">여
+    <p>생년월일</p>
+    <input type="date" name="date_of_birth">
+    <p>기관</p>
+    <select class="" name="institutions">
+      <option value="kumc">고대안암병원</option>
+    </select>
+    <input type="submit" name="submit" value="등록"></button>
+  </form>
+</div>
+{% endblock %}

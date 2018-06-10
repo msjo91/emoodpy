@@ -125,6 +125,7 @@ INSTALLED_APPS = [
 
     'member.apps.MemberConfig',
     'survey.apps.SurveyConfig',
+    'research.apps.ResearchConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -174,7 +175,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -213,7 +213,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
