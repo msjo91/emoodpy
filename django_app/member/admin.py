@@ -73,7 +73,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Info', {'fields': (
-            'nickname', 'sex', 'date_of_birth', 'institution', 'fitbit', 'last_login', 'is_active')}),
+            'nickname', 'sex', 'date_of_birth', 'phone', 'institution', 'fitbit', 'last_login', 'is_active')}),
         ('Permissions', {'fields': ('user_type', 'is_admin',)}),
     )
 
@@ -82,9 +82,10 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': (
-                'username', 'nickname', 'sex', 'date_of_birth', 'institution', 'user_type', 'fitbit', 'password1',
-                'password2')
-        })
+                'username', 'nickname', 'sex', 'date_of_birth', 'phone', 'institution', 'user_type', 'fitbit',
+                'password1',
+                'password2'),
+        }),
     )
     search_fields = ('id', 'username', 'sex', 'institution', 'user_type')
     ordering = ('id',)

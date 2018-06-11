@@ -5,7 +5,7 @@ from research.models import Institution
 
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, username, nickname, sex, date_of_birth, institution, user_type='P', password=None):
+    def create_user(self, username, nickname, sex, date_of_birth, phone, institution, user_type='P', password=None):
         """
         아이디, 이니셜, 성별, 생년월일, 유저타입을 이용해 이용자를 생성한다.
         """
@@ -15,6 +15,7 @@ class MyUserManager(BaseUserManager):
                 nickname=nickname,
                 sex=sex,
                 date_of_birth=date_of_birth,
+                phone=phone,
                 institution=institution,
                 user_type=user_type
             )
@@ -67,10 +68,17 @@ class MyUser(AbstractBaseUser):
         ('F', 'Female')
     )
 
-    sex = models.CharField(max_length=1, choices=CHOICES_SEX)
+    sex = models.CharField(max_length=1, choices=CHOICES_SEX, blank=True, null=True)
 
     date_of_birth = models.DateField(
         verbose_name='date_of_birth',
+        blank=True,
+        null=True
+    )
+
+    phone = models.CharField(
+        verbose_name='phone',
+        max_length=11,
         blank=True,
         null=True
     )
@@ -130,7 +138,6 @@ class MyUser(AbstractBaseUser):
         슈퍼유저 권한을 가지고 있습니까?
         """
         return self.is_admin
-
 
 # class Membership(models.Model):
 #     user = models.ForeignKey(MyUser, related_name='participants', on_delete=models.CASCADE)
